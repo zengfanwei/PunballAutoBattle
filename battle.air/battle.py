@@ -30,7 +30,7 @@ def choose_chapter(chapter):  # 选择指定章节
             poco.swipe((0.5, 0.25), (0.5, 1), duration=0.3)  # 向下滑动
     sleep(2)
     p = poco(text=target).get_position()
-    while p[1] < 0.05 or p[1] > 0.95:
+    while p[1] < 0.1 or p[1] > 0.9:
         if p[1] < 0.1:
             poco.swipe((0.5, 0.25), (0.5, 1))  # 向下滑动
         if p[1] > 0.75:
@@ -106,6 +106,8 @@ def app_home():  # 且后台再回来同步数据
     device().start_app("com.habby.punball")
     
 def add_equipment(chapter):  # 后台添加装备
+    # 添加10体力
+    addResource(1040001,20,0)
     for e in Equipments.keys():
         addResource(random.choice(Equipments[e]),1,60)
         # user.add_prop(1, e, 60)

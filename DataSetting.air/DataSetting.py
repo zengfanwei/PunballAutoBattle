@@ -73,3 +73,4 @@ if __name__ == '__main__':
 #     # user.create_new_uid()
 #     # user.add_prop(1, 3020106, 20)
 #     user.delete_equipment()
+
