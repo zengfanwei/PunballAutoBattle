@@ -11,11 +11,17 @@ from config import TargetChapter, Equipments
 using("data.air")
 from data import *
 import logging
+import time
 import os
+import xlrd
 from concurrent_log_handler import ConcurrentRotatingFileHandler
+now = time.strftime('%Y-%m-%d--%H-%M-%S',time.localtime())
+thisroot = os.path.abspath(os.path.dirname(__file__))
+thispath = thisroot + "\\report\\"+ now
+os.mkdir(thispath)
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter(fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s')
-filehandler = ConcurrentRotatingFileHandler(filename="./autobattle.log", maxBytes=5 * 1024 * 1024, backupCount=2, encoding='utf-8')
+filehandler = ConcurrentRotatingFileHandler(filename=thispath+"/autobattle.log", maxBytes=5 * 1024 * 1024, backupCount=2, encoding='utf-8')
 filehandler.setFormatter(formatter)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(filehandler)
@@ -55,7 +61,7 @@ def choose_chapter(chapter):  # 选择指定章节
     poco(text=target).click()
     logger.info("成功选择章节！")
     poco("Text_Start").click()
-    
+
 def battle(chapter):   # 战斗
     logger.info("开始战斗！")
     poco("Item0").child("SkillButton").wait_for_appearance()
@@ -72,7 +78,7 @@ def battle(chapter):   # 战斗
         poco(texture="UICommon_Close").click()
     sleep(3)
     logger.info("通关，到结算界面！")
-    snapshot(filename=os.path.abspath(os.path.dirname(__file__))+'//chapter{0}.jpg'.format(chapter))
+    snapshot(filename=thispath+'//chapter{0}.jpg'.format(chapter))
     # 处理用户升级
     if poco("ExpLevelUpUIPanel").exists():
         poco("TextClose").click()
@@ -96,7 +102,7 @@ def battle(chapter):   # 战斗
         poco("level").click()
         logger.info("玩家弹出限时礼包！")
     logger.info("战斗结束，回到主界面！")
-        
+
 def remove_equipment():   # 脱装备
     logger.info("开始脱装备！")
     poco(texture="MainUI_Button_Equip").click()
@@ -108,7 +114,7 @@ def remove_equipment():   # 脱装备
     sleep(1)
     poco(texture="MainUI_Button_Home").click()
     logger.info("脱完装备，回到主界面！")
-            
+
 def wear_equipment():   # 穿装备
     logger.info("开始穿装备！")
     poco(texture="MainUI_Button_Equip").click()
@@ -125,13 +131,13 @@ def wear_equipment():   # 穿装备
     sleep(1)
     poco(texture="MainUI_Button_Home").click()
     logger.info("穿完装备，回到主界面！")
-        
+
 def app_home():  # 且后台再回来同步数据
     device().home()
     logger.info("游戏切到后台！")
     device().start_app("com.habby.punball")
     logger.info("后台切回游戏！")
-    
+
 def add_equipment():  # 后台添加装备
     logger.info("开始添加装备！")
     # 添加10体力
@@ -140,10 +146,20 @@ def add_equipment():  # 后台添加装备
     for e in Equipments.keys():
         equip = random.choice(Equipments[e])
         addResource(equip,1,60)
-        logger.info("添加了装备：{0}".format(str(equip)))
+        logger.info("添加了装备：{0}".format(read_excel(equip)))
         # user.add_prop(1, e, 60)
     logger.info("添加装备结束！")
-        
+
+def read_excel(equip):
+    equippath = thisroot + "//Equip.xls"
+    workbook = xlrd.open_workbook(equippath)
+    sheet_name = workbook.sheet_names()[0]
+    sheet = workbook.sheet_by_name(sheet_name)
+    # rows = sheet.row_values(2)
+    eid = sheet.col_values(0)
+    name = sheet.col_values(1)
+    return name[eid.index(equip)]
+
 for chapter in TargetChapter:
     logger.info("开始测试！")
     removeequipment()
