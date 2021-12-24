@@ -54,9 +54,9 @@ def choose_chapter(chapter):  # 选择指定章节
             poco.swipe((0.5, 0.75), (0.5, 0))  # 向上滑动
         p = poco(text=target).get_position()
     if p[1] > 0.5:
-            poco.swipe((0.5, 0.75), (0.5, 0.25))  # 向上滑动
+            poco.swipe((0.5, 0.5), (0.5, 0.3))  # 向上滑动
     else:
-            poco.swipe((0.5, 0.25), (0.5, 0.5))  # 向下滑动
+            poco.swipe((0.5, 0.3), (0.5, 0.5))  # 向下滑动
     sleep(2)
     poco(text=target).click()
     logger.info("成功选择章节！")
