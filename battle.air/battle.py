@@ -5,7 +5,7 @@ import random
 from airtest.core.api import *
 from poco.drivers.unity3d import UnityPoco
 using("config.air")
-from config import TargetChapter, Equipments
+from config import TargetChapter, Equipments, Pets
 # using("DataSetting.air")
 # from DataSetting import UserData
 using("data.air")
@@ -62,6 +62,7 @@ def choose_chapter(chapter):  # 选择指定章节
     logger.info("成功选择章节！")
     poco("Text_Start").click()
 
+
 def battle(chapter):   # 战斗
     logger.info("开始战斗！")
     poco("Item0").child("SkillButton").wait_for_appearance()
@@ -103,6 +104,7 @@ def battle(chapter):   # 战斗
         logger.info("玩家弹出限时礼包！")
     logger.info("战斗结束，回到主界面！")
 
+
 def remove_equipment():   # 脱装备
     logger.info("开始脱装备！")
     poco(texture="MainUI_Button_Equip").click()
@@ -114,6 +116,7 @@ def remove_equipment():   # 脱装备
     sleep(1)
     poco(texture="MainUI_Button_Home").click()
     logger.info("脱完装备，回到主界面！")
+
 
 def wear_equipment():   # 穿装备
     logger.info("开始穿装备！")
@@ -132,25 +135,39 @@ def wear_equipment():   # 穿装备
     poco(texture="MainUI_Button_Home").click()
     logger.info("穿完装备，回到主界面！")
 
+
 def app_home():  # 且后台再回来同步数据
     device().home()
     logger.info("游戏切到后台！")
     device().start_app("com.habby.punball")
     logger.info("后台切回游戏！")
 
+
 def add_equipment():  # 后台添加装备
     logger.info("开始添加装备！")
     # 添加10体力
-    addResource(1040001,20,0)
+    addResource(1040001, 20, 0)
     logger.info("添加20点体力！")
     for e in Equipments.keys():
         equip = random.choice(Equipments[e])
-        addResource(equip,1,60)
-        logger.info("添加了装备：{0}".format(read_excel(equip)))
+        addResource(equip, 1, 60)
+        logger.info("添加了装备：{0}".format(read_equip_excel(equip)))
         # user.add_prop(1, e, 60)
     logger.info("添加装备结束！")
 
-def read_excel(equip):
+
+def add_pets():  # 后台添加宠物
+    logger.info("开始添加宠物！")
+    addResource(1040001, 20, 0)
+    logger.info("添加20点体力！")
+    for i in range(3):
+        pet = random.choice(Pets)
+        addResource(pet, 1, 60)
+        logger.info("添加了宠物：{0}".format(read_pet_excel(pet)))
+    logger.info("添加宠物结束！")
+
+
+def read_equip_excel(equip):
     equippath = thisroot + "//Equip.xls"
     workbook = xlrd.open_workbook(equippath)
     sheet_name = workbook.sheet_names()[0]
@@ -160,19 +177,39 @@ def read_excel(equip):
     name = sheet.col_values(1)
     return name[eid.index(equip)]
 
-for chapter in TargetChapter:
-    logger.info("开始测试！")
-    removeequipment()
-    logger.info("成功删除装备！")
-    add_equipment()
-    app_home()
-    wear_equipment()
-    choose_chapter(chapter)
-    battle(chapter)
-    remove_equipment()
-    # user.delete_equipment()
-    removeequipment()
-    logger.info("成功删除装备！")
-logger.info("测试结束！")
+
+def read_pet_excel(petid):
+    petpath = thisroot + "//Pet.xls"
+    workbook = xlrd.open_workbook(petpath)
+    sheet_name = workbook.sheet_names()[0]
+    sheet = workbook.sheet_by_name(sheet_name)
+    # rows = sheet.row_values(2)
+    pid = sheet.col_values(0)
+    name = sheet.col_values(1)
+    return name[pid.index(petid)]
+
+
+def start_test():
+    for chapter in TargetChapter:
+        logger.info("开始测试！")
+        removeequipment()
+        logger.info("成功删除装备！")
+        add_equipment()
+        add_pets()
+        app_home()
+        wear_equipment()
+        # 佩戴宠物的方法还没写
+        choose_chapter(chapter)
+        battle(chapter)
+        remove_equipment()
+        # user.delete_equipment()
+        removeequipment()
+        logger.info("成功删除装备！")
+    logger.info("测试结束！")
+
+
+if __name__ == '__main__':
+    start_test()
+
 
 
